@@ -1,6 +1,6 @@
 Lone Star Drivers:
 * Yingwei Yu
-* Qiuhua Liu
+* Qiuhua Liu: sdflower@gmail.com
 * Sylvain Chambon: sylvain.chambon@m4x.org
 
 
