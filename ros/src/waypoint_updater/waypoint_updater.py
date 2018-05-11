@@ -78,6 +78,7 @@ class WaypointUpdater(object):
 
     def publish_waypoints(self, closest_idx):
         lane = Lane()
+        print dir(lane)
         lane.header = self.base_waypoints.header
         lane.waypoints = self.base_waypoints.waypoints[closest_idx:closest_idx + LOOKAHEAD_WPS]
         self.final_waypoints_pub.publish(lane)
@@ -86,7 +87,7 @@ class WaypointUpdater(object):
         self.pose = msg
 
     def waypoints_cb(self, lane):
-        self.base_waypoints = lane.waypoints
+        self.base_waypoints = lane #.waypoints
         if not self.waypoints_2d:
             self.waypoints_2d = [[waypoint.pose.pose.position.x,
                                   waypoint.pose.pose.position.y] for waypoint in lane.waypoints]
