@@ -111,7 +111,7 @@ class TLDetector(object):
         x = pose.position.x
         y = pose.position.y
         closest_idx = self.waypoint_tree.query([x, y], 1)[1]
-        return 0
+        return closest_idx
 
     def get_light_state(self, light):
         """Determines the current color of the traffic light
@@ -167,7 +167,7 @@ class TLDetector(object):
                     line_wp_idx = temp_wp_idx
 
         if closest_light:
-            state = self.get_light_state(light)
+            state = self.get_light_state(closest_light)
             rospy.logwarn("TL Dectector - LineWPIdx {} Light State: {}".format(line_wp_idx, state))
             return line_wp_idx, state
 
