@@ -2,6 +2,7 @@
 * Yingwei Yu: yingweiy@gmail.com
 * Qiuhua Liu: sdflower@gmail.com
 * Sylvain Chambon: sylvain.chambon@m4x.org
+* Arman Khalighi: khalighi.ar9@gmail.com
 
 
 
