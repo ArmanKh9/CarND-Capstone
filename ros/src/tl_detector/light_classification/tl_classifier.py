@@ -11,12 +11,12 @@ class TLClassifier(object):
         self.img_path = '/home/student/CarND-Capstone/imgs/classifier/'
         pass
 
-    def saveimage(self, image, type='unknown'):
+    def saveimage(self, image, type):
         if not self.training_mode:
             return
         print 'Saving image:', self.imgcount
-        #mpimg.imsave(, image)
-        fn = self.img_path + '/'+ type +'/' + str(self.imgcount) + '.jpg'
+        folder = ['red', 'green', 'yellow', 'unknown']
+        fn = self.img_path + '/'+ folder[type] +'/' + str(self.imgcount) + '.jpg'
         cv2.imwrite(fn, image)
         self.imgcount += 1
 
@@ -32,37 +32,26 @@ class TLClassifier(object):
 
         """
         #TODO implement light color prediction
-        # A temporary classifier for testing use. TOBE Rewrited!!!
 
+        lights = [TrafficLight.RED, TrafficLight.GREEN, TrafficLight.YELLOW, TrafficLight.UNKNOWN]
+        hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+        #  HUE Table
+        #   Red:     0-10, 160-180
+        #   Yellow:  32-47    i.e., (45-67)/360*255
+        #   Green:   63-99    i.e., (90-130)/360*255
+        red_th1 = cv2.inRange(hsv, (0, 120, 120), (10, 255, 255))
+        red_th2 = cv2.inRange(hsv, (160, 120, 120), (179, 255, 255))
+        red_cnt = cv2.countNonZero(red_th1) + cv2.countNonZero(red_th2)
 
-        # Transform to HSV and simply count the number of color within the range
-        hsv_img = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
-        # red has hue 0 - 10 & 160 - 180 add another filter
-        RED_MIN1 = np.array([0, 100, 100], np.uint8)
-        RED_MAX1 = np.array([10, 255, 255], np.uint8)
+        yellow_th = cv2.inRange(hsv, (32, 150, 150), (47, 255, 255))
+        yellow_cnt = cv2.countNonZero(yellow_th)
 
-        RED_MIN2 = np.array([160, 100, 100], np.uint8)
-        RED_MAX2 = np.array([179, 255, 255], np.uint8)
+        green_th = cv2.inRange(hsv, (63, 100, 100), (92, 255, 255))
+        green_cnt = cv2.countNonZero(green_th)
 
-        frame_threshed1 = cv2.inRange(hsv_img, RED_MIN1, RED_MAX1)
-        frame_threshed2 = cv2.inRange(hsv_img, RED_MIN2, RED_MAX2)
-        if cv2.countNonZero(frame_threshed1) + cv2.countNonZero(frame_threshed2) > 50:
-            self.saveimage(image, type='red')
-            return TrafficLight.RED
+        idx = np.argmax(np.array([red_cnt, yellow_cnt, green_cnt, 50]))
 
-        YELLOW_MIN = np.array([40.0 / 360 * 255, 100, 100], np.uint8)
-        YELLOW_MAX = np.array([66.0 / 360 * 255, 255, 255], np.uint8)
-        frame_threshed3 = cv2.inRange(hsv_img, YELLOW_MIN, YELLOW_MAX)
-        if cv2.countNonZero(frame_threshed3) > 50:
-            self.saveimage(image, type='yellow')
-            return TrafficLight.YELLOW
+        if self.training_mode:
+            self.saveimage(image, idx)
 
-        GREEN_MIN = np.array([90.0 / 360 * 255, 100, 100], np.uint8)
-        GREEN_MAX = np.array([140.0 / 360 * 255, 255, 255], np.uint8)
-        frame_threshed4 = cv2.inRange(hsv_img, GREEN_MIN, GREEN_MAX)
-        if cv2.countNonZero(frame_threshed4) > 50:
-            self.saveimage(image, type='green')
-            return TrafficLight.GREEN
-
-        self.saveimage(image)
-        return TrafficLight.UNKNOWN
+        return lights[idx]
