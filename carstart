@@ -4,5 +4,5 @@ cd ~/CarND-Capstone/ros
 catkin_make
 source devel/setup.bash
 
-roslaunch launch/styx.launch
+roslaunch launch/$1.launch
 
