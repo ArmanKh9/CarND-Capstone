@@ -1,23 +1,14 @@
 from styx_msgs.msg import TrafficLight
 import cv2
-import os
 import matplotlib.image as mpimg
 import numpy as np
-from keras.layers import GlobalAveragePooling2D, Input, Flatten, Dense, Dropout
-from keras.applications.resnet50 import ResNet50
-from keras.optimizers import Adam
-from keras.models import Model, Sequential
 
-cwd = os.path.dirname(os.path.realpath(__file__))
-
-#light_color = self.light_classifier.get_classification(cv_image)
 class TLClassifier(object):
     def __init__(self):
         #TODO load classifier
         self.training_mode = False
         self.imgcount = 0
         self.img_path = '/home/student/CarND-Capstone/imgs/classifier/'
-	    self.model = self.load_model()
         pass
 
     def saveimage(self, image, type):
@@ -28,21 +19,6 @@ class TLClassifier(object):
         fn = self.img_path + '/'+ folder[type] +'/' + str(self.imgcount) + '.jpg'
         cv2.imwrite(fn, image)
         self.imgcount += 1
-
-
-    def load_model(self):
-        os.chdir(cwd)
-        base_model = ResNet50
-        base_model = base_model(weights=None, include_top=False)
-        x = base_model.output
-        x = GlobalAveragePooling2D()(x)
-        x = Dense(1024, activation='relu')(x)
-        predictions = Dense(4, activation='softmax')(x)
-        model = Model(inputs=base_model.input, outputs=predictions)
-        model.load_weights('weights.h5')
-        return model
-
-
 
     def get_classification(self, image):
 
@@ -57,12 +33,25 @@ class TLClassifier(object):
         """
         #TODO implement light color prediction
 
-
-
         lights = [TrafficLight.RED, TrafficLight.GREEN, TrafficLight.YELLOW, TrafficLight.UNKNOWN]
-        rgb = cv2.resize(image[...,::-1], (224, 224))
-	    rgb = np.expand_dims(rgb, axis=0)
-	    print(rgb.shape)
-	    idx = self.model.predict(rgb)
-	
+        hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+        #  HUE Table
+        #   Red:     0-10, 160-180
+        #   Yellow:  28-47    i.e., (40-67)/360*255
+        #   Green:   63-99    i.e., (90-130)/360*255
+        red_th1 = cv2.inRange(hsv, (0, 120, 120), (10, 255, 255))
+        red_th2 = cv2.inRange(hsv, (160, 120, 120), (179, 255, 255))
+        red_cnt = cv2.countNonZero(red_th1) + cv2.countNonZero(red_th2)
+
+        yellow_th = cv2.inRange(hsv, (28, 120, 120), (47, 255, 255))
+        yellow_cnt = cv2.countNonZero(yellow_th)
+
+        green_th = cv2.inRange(hsv, (63, 100, 100), (92, 255, 255))
+        green_cnt = cv2.countNonZero(green_th)
+
+        idx = np.argmax(np.array([red_cnt, green_cnt, yellow_cnt, 50]))
+
+        if self.training_mode:
+            self.saveimage(image, idx)
+
         return lights[idx]
