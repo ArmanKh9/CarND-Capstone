@@ -80,10 +80,12 @@ The `process_traffic_lights` method in the file `tl_detector.py` was updated to 
 To use the camera image date to classify the color of the traffic light, we explored two different approaches. 
 
 The first one is a quick implementation that simply detects the red color pixels in the camera images using Python cv2 package. To do this, the original images were transformed into HSV color space and the number of pixels with the red color was counted and a threshold was applied to it to detect whether the image has the red lights or not.  This method works well for the simulator and the vehicle was able to stop at the red light.
+The file name for the first method is  `tl_classifier.py` 
+
 
 The second method implemented a deep learning classifier using the Bosch traffic light dataset to to classify the entire image as containing either a red light, yellow light, green light, or no light.
- 
-Details on the second method....
+ However, the second method is still under development, not activated in the system.
+The file name for the second method is  `tl_classifier_NN.py` 
 
 # Installation
 
